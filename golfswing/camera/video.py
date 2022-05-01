@@ -1,15 +1,26 @@
 import cv2
-from golfswing.camera import camera
 
-def capture_mp4(fname, camera, time_secs):
-    writer = cv2.VideoWriter(fname,
-                             cv2.VideoWriter_fourcc(*'mp4v'),
-                             camera.fps(), (camera.width(), camera.height()))
+""" Process video files as an iterator"""
 
-    num_frames = time_secs * camera.fps()
+class Video:
+    def __init__(self, fname):
+        self.cap = cv2.VideoCapture(fname)
+        if not self.cap.isOpened():
+            raise ValueError(f"Could not open {fname}")
 
-    for _ in range(num_frames):
-        frame = camera.read_frame()
-        writer.write(frame)
+    def __iter__(self):
+        return self
 
-    writer.release()
+    def __next__(self):
+        if self.cap.grab():
+            flag, frame = self.cap.retrieve()
+            if not flag:
+                raise StopIteration
+            else:
+                return frame
+        else:
+            raise StopIteration
+
+    def __del__(self):
+        self.cap.release()
+
