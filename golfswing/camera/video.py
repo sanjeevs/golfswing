@@ -24,3 +24,5 @@ class Video:
     def __del__(self):
         self.cap.release()
 
+    def num_frames(self):
+        return int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
